@@ -12,23 +12,23 @@ namespace {
 std::string ToString(Color color) {
     // clang-format off
     std::map<Color, std::string> name_mapper {
-        {Color::kBlack, "black"},
-        {Color::kDarkBlue, "dark blue"},
-        {Color::kDarkGreen, "dark green"},
-        {Color::kLightBlue, "light blue"},
-        {Color::kDarkRed, "dark red"},
-        {Color::kMagenta, "magenta"},
+        {Color::kBlack, "Black"},
+        {Color::kDarkBlue, "DarkBlue"},
+        {Color::kDarkGreen, "DarkGreen"},
+        {Color::kLightBlue, "LightBlue"},
+        {Color::kDarkRed, "DarkRed"},
+        {Color::kMagenta, "Magenta"},
         {Color::kOrange, "Orange"},
-        {Color::kLightGray, "Light gray"},
-        {Color::kGray, "gray"},
-        {Color::kBlue, "blue"},
-        {Color::kGreen, "green"},
-        {Color::kCyan, "cyan"},
-        {Color::kRed, "red"},
-        {Color::kPink, "pink"},
-        {Color::kYellow, "yellow"},
-        {Color::kWhite, "white"},
-        {Color::kNone, "none"},
+        {Color::kLightGray, "LightGray"},
+        {Color::kGray, "Gray"},
+        {Color::kBlue, "Blue"},
+        {Color::kGreen, "Green"},
+        {Color::kCyan, "Cyan"},
+        {Color::kRed, "Red"},
+        {Color::kPink, "Pink"},
+        {Color::kYellow, "Yellow"},
+        {Color::kWhite, "White"},
+        {Color::kNone, "None"},
     };
     // clang-format on
     return name_mapper[color];
@@ -40,8 +40,14 @@ void ShowExample() {
                    Color::kMagenta, Color::kOrange,   Color::kLightGray, Color::kGray,      Color::kBlue,
                    Color::kGreen,   Color::kCyan,     Color::kRed,       Color::kPink,      Color::kYellow,
                    Color::kWhite,   Color::kNone};
+    putchar('\n');
+    for (auto color : colors) { printf("%-12s", ToString(color).c_str()); }
+    putchar('\n');
     for (auto fg : colors) {
-        for (auto bg : colors) { Print(fg, bg, ToString(bg) + ","); }
+        for (auto bg : colors) {
+            Print(fg, bg, "hello,world");
+            std::putchar(' ');
+        }
         std::cout << std::endl;
     }
 }
