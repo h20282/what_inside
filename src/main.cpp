@@ -8,6 +8,8 @@
 
 #include "color.h"
 
+constexpr const int kColumLimit = 16;
+
 struct Field {
     size_t size;
     std::string name;
@@ -51,7 +53,7 @@ void ShowFileds(const std::vector<char> bytes, std::vector<Field> arr) {
                 color::Print(color::kNone, color::kNone, " ");
             }
             ++data;
-            if (++byte_cnt % 8 == 0) {
+            if (++byte_cnt % kColumLimit == 0) {
                 ++line_number;
                 std::cout << " |";
                 for (auto c : showed_bytes) {
@@ -76,6 +78,16 @@ void ShowFileds(const std::vector<char> bytes, std::vector<Field> arr) {
             }
         }
     }
+}
+
+color::Color AnyColor() {
+    static std::vector<color::Color> colors = {
+            color::kOrange,  color::kDarkBlue,  color::kDarkGreen, color::kLightBlue, color::kDarkRed,
+            color::kMagenta, color::kLightGray, color::kOrange,    color::kGray,      color::kBlue,
+            color::kGreen,   color::kCyan,      color::kRed,       color::kPink,
+    };
+    static int curr = 0;
+    return colors[curr++ % colors.size()];
 }
 
 std::vector<Field> MarkObjectFile(const std::vector<char> &bytes) {
@@ -112,6 +124,8 @@ std::vector<Field> MarkObjectFile(const std::vector<char> &bytes) {
         size_t offset = p->e_shoff + i * sizeof(Elf64_Shdr);
         const Elf64_Shdr *curr_section = reinterpret_cast<const Elf64_Shdr *>(bytes.data() + offset);
         std::string section_name = GetSectionName(curr_section->sh_name);
+
+        mp[curr_section->sh_offset] = {curr_section->sh_size, section_name, "", AnyColor()};
 
         Field f[] = {
                 {sizeof(Elf64_Word), ".sh_name", "节名称在字符串表中的索引", color::kOrange},
