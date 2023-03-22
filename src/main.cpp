@@ -131,13 +131,13 @@ std::vector<Field> MarkObjectFile(const std::vector<char> &bytes) {
                 {sizeof(Elf64_Word), ".sh_name", "节名称在字符串表中的索引", color::kOrange},
                 {sizeof(Elf64_Word), ".sh_type", "节类型", color::kDarkBlue},
                 {sizeof(Elf64_Xword), ".sh_flags", "节标志位", color::kDarkGreen},
-                {sizeof(Elf64_Addr), ".sh_addr", "节的起始地址", color::kLightBlue},
+                {sizeof(Elf64_Addr), ".sh_addr", "节的起始地址", color::kRed},
                 {sizeof(Elf64_Off), ".sh_offset", "节相对于文件开头的偏移量", color::kDarkRed},
                 {sizeof(Elf64_Xword), ".sh_size", "节大小", color::kMagenta},
                 {sizeof(Elf64_Word), ".sh_link", "相关节在节区头部表中的索引", color::kOrange},
                 {sizeof(Elf64_Word), ".sh_info", "额外信息", color::kLightGray},
                 {sizeof(Elf64_Xword), ".sh_addralign", "节在内存中的对齐方式", color::kBlue},
-                {sizeof(Elf64_Xword), ".sh_entsize", "表项大小", color::kRed},
+                {sizeof(Elf64_Xword), ".sh_entsize", "表项大小", color::kLightBlue},
         };
         for (auto field : f) {
             if (field.name == ".sh_name") { field.name += "(" + section_name + ")"; }
