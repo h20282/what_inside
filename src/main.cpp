@@ -8,7 +8,7 @@
 
 #include "color.h"
 
-constexpr const int kColumLimit = 16;
+int gColumLimit = 16;
 
 struct Field {
     size_t size;
@@ -53,7 +53,7 @@ void ShowFileds(const std::vector<char> bytes, std::vector<Field> arr) {
                 color::Print(color::kNone, color::kNone, " ");
             }
             ++data;
-            if (++byte_cnt % kColumLimit == 0) {
+            if (++byte_cnt % gColumLimit == 0) {
                 ++line_number;
                 std::cout << " |";
                 for (auto c : showed_bytes) {
@@ -398,10 +398,11 @@ int main(int argc, char **argv) {
     for (auto &field : java_class) { field.color = colors[i++ % n]; }
 
     if (argc < 2) {
-        std::cout << "Usage: showed_feilds filename" << std::endl;
+        std::cout << "Usage: showed_feilds filename [colum limit]" << std::endl;
         return 0;
     }
     std::string file_name = argv[1];
+    if (argc == 3) { gColumLimit = std::stoi(argv[2]); }
     auto bytes = ReadFile(file_name);
     if (file_name.find(".o") != std::string::npos) {
         ShowFileds(bytes, MarkObjectFile(bytes));
