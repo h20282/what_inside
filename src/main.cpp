@@ -1,5 +1,7 @@
 #include <fstream>
 #include <iostream>
+#include <map>
+#include <string>
 #include <vector>
 
 #include "elf.h"
@@ -49,7 +51,7 @@ void ShowFileds(const std::vector<char> bytes, std::vector<Field> arr) {
                 color::Print(color::kNone, color::kNone, " ");
             }
             ++data;
-            if (++byte_cnt % 16 == 0) {
+            if (++byte_cnt % 8 == 0) {
                 ++line_number;
                 std::cout << " |";
                 for (auto c : showed_bytes) {
@@ -74,6 +76,77 @@ void ShowFileds(const std::vector<char> bytes, std::vector<Field> arr) {
             }
         }
     }
+}
+
+std::vector<Field> MarkObjectFile(const std::vector<char> &bytes) {
+    std::vector<Field> fields{
+            {EI_NIDENT, "e_ident", "Magic number and other info", color::kOrange},
+            {sizeof(Elf64_Half), "e_type", "Object file type", color::kDarkBlue},
+            {sizeof(Elf64_Half), "e_machine", "Architecture", color::kDarkGreen},
+            {sizeof(Elf64_Word), "e_version", "Object file version", color::kLightBlue},
+            {sizeof(Elf64_Addr), "e_entry", "Entry point virtual address", color::kDarkRed},
+            {sizeof(Elf64_Off), "e_phoff", "Program header table file offset", color::kMagenta},
+            {sizeof(Elf64_Off), "e_shoff", "Section header table file offset", color::kLightGray},
+            {sizeof(Elf64_Word), "e_flags", "Processor-specific flags", color::kOrange},
+            {sizeof(Elf64_Half), "e_ehsize", "ELF header size in bytes", color::kGray},
+            {sizeof(Elf64_Half), "e_phentsize", "Program header table entry size", color::kBlue},
+            {sizeof(Elf64_Half), "e_phnum", "Program header table entry count", color::kGreen},
+            {sizeof(Elf64_Half), "e_shentsize", "Section header table entry size", color::kCyan},
+            {sizeof(Elf64_Half), "e_shnum", "Section header table entry count", color::kRed},
+            {sizeof(Elf64_Half), "e_shstrndx", "Section header string table index", color::kPink},
+    };
+    size_t curr = sizeof(Elf64_Ehdr);
+    std::map<int, Field> mp;
+
+    const Elf64_Ehdr *p = reinterpret_cast<const Elf64_Ehdr *>(bytes.data());
+
+    auto GetSectionName = [p, &bytes](size_t offset_of_name) -> std::string {
+        size_t offset_of_shstrtab = p->e_shoff + p->e_shstrndx * sizeof(Elf64_Shdr);
+        const Elf64_Shdr *shstrtab = reinterpret_cast<const Elf64_Shdr *>(bytes.data() + offset_of_shstrtab);
+        const char *base = reinterpret_cast<const char *>(bytes.data() + shstrtab->sh_offset);
+        return base + offset_of_name;
+    };
+
+    // char *section_header_str_base = nullptr;
+    for (int i = 0; i < p->e_shnum; ++i) {
+        size_t offset = p->e_shoff + i * sizeof(Elf64_Shdr);
+        const Elf64_Shdr *curr_section = reinterpret_cast<const Elf64_Shdr *>(bytes.data() + offset);
+        std::string section_name = GetSectionName(curr_section->sh_name);
+
+        Field f[] = {
+                {sizeof(Elf64_Word), ".sh_name", "节名称在字符串表中的索引", color::kOrange},
+                {sizeof(Elf64_Word), ".sh_type", "节类型", color::kDarkBlue},
+                {sizeof(Elf64_Xword), ".sh_flags", "节标志位", color::kDarkGreen},
+                {sizeof(Elf64_Addr), ".sh_addr", "节的起始地址", color::kLightBlue},
+                {sizeof(Elf64_Off), ".sh_offset", "节相对于文件开头的偏移量", color::kDarkRed},
+                {sizeof(Elf64_Xword), ".sh_size", "节大小", color::kMagenta},
+                {sizeof(Elf64_Word), ".sh_link", "相关节在节区头部表中的索引", color::kOrange},
+                {sizeof(Elf64_Word), ".sh_info", "额外信息", color::kLightGray},
+                {sizeof(Elf64_Xword), ".sh_addralign", "节在内存中的对齐方式", color::kBlue},
+                {sizeof(Elf64_Xword), ".sh_entsize", "表项大小", color::kRed},
+        };
+        for (auto field : f) {
+            if (field.name == ".sh_name") { field.name += "(" + section_name + ")"; }
+            field.name = "[" + std::to_string(i) + "]" + field.name;
+            // per section table
+            mp[offset] = field;
+            offset += field.size;
+        }
+    }
+
+    for (auto pair : mp) {
+        auto offset = pair.first;
+        auto field = pair.second;
+        if (curr < offset) {
+            size_t size = offset - curr;
+            fields.push_back({size, "unknown", "", color::kBlack});
+            curr += size;
+        }
+        fields.push_back(field);
+        curr += field.size;
+    }
+
+    return fields;
 }
 
 int main(int argc, char **argv) {
@@ -317,12 +390,12 @@ int main(int argc, char **argv) {
     std::string file_name = argv[1];
     auto bytes = ReadFile(file_name);
     if (file_name.find(".o") != std::string::npos) {
-        ShowFileds(bytes, object);
+        ShowFileds(bytes, MarkObjectFile(bytes));
     } else {
         ShowFileds(bytes, java_class);
     }
 
     // color::ShowExample();
-
+    std::cout << bytes.size() << std::endl;
     return 0;
 }
