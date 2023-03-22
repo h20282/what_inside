@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
 
     Elf64_Addr a;
 
-    std::vector<Field> arr{
+    std::vector<Field> object{
             {EI_NIDENT, "e_ident", "Magic number and other info", color::kOrange},
             {sizeof(Elf64_Half), "e_type", "Object file type", color::kDarkBlue},
             {sizeof(Elf64_Half), "e_machine", "Architecture", color::kDarkGreen},
@@ -261,14 +261,66 @@ int main(int argc, char **argv) {
             {sizeof(Elf64_Xword), "[11].sh_entsize", "表项大小", color::kRed},
     };
 
-    color::Color colors[] = {
-            color::kBlack,   color::kDarkBlue, color::kDarkGreen, color::kLightBlue, color::kDarkRed,
-            color::kMagenta, color::kOrange,   color::kLightGray, color::kGray,      color::kBlue,
-            color::kGreen,   color::kCyan,     color::kRed,       color::kPink,
+    std::vector<Field> java_class{
+            {4, "magic"},
+            {2, "minor_version"},
+            {2, "major_version"},
+            {2, "constant_pool_count"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[1]"},
+            {9, "constant_pool[2]"},
+            {9, "constant_pool[3]"},
+            {9, "constant_pool[4]"},
+            {9, "constant_pool[5]"},
+            {9, "constant_pool[6]"},
+            {9, "constant_pool[7]"},
+            {9, "constant_pool[8]"},
+            {9, "constant_pool[9]"},
+            {9, "constant_pool[10]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {9, "constant_pool[0]"},
+            {2, "access_flags"},
+            {2, "this_class"},
+            {2, "super_class"},
+            {2, "interface_count"},
+            {20, "interfaces"},
     };
 
-    auto bytes = ReadFile(argv[1]);
-    ShowFileds(bytes, arr);
+    color::Color colors[] = {
+            color::kDarkBlue, color::kDarkGreen, color::kLightBlue, color::kDarkRed, color::kMagenta,
+            color::kOrange,   color::kLightGray, color::kGray,      color::kBlue,    color::kGreen,
+            color::kCyan,     color::kRed,       color::kPink,
+    };
+    int n = sizeof(colors) / sizeof(colors[0]);
+    int i = 0;
+    for (auto &field : java_class) { field.color = colors[i++ % n]; }
+
+    if (argc < 2) {
+        std::cout << "Usage: showed_feilds filename" << std::endl;
+        return 0;
+    }
+    std::string file_name = argv[1];
+    auto bytes = ReadFile(file_name);
+    if (file_name.find(".o") != std::string::npos) {
+        ShowFileds(bytes, object);
+    } else {
+        ShowFileds(bytes, java_class);
+    }
 
     // color::ShowExample();
 
