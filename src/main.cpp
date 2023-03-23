@@ -222,10 +222,10 @@ int main(int argc, char **argv) {
     std::string file_name = argv[1];
     if (argc == 3) { gColumLimit = std::stoi(argv[2]); }
     auto bytes = ReadFile(file_name);
-    if (file_name.find(".o") != std::string::npos) {
-        ShowFileds(bytes, MarkObjectFile(bytes));
-    } else {
+    if (file_name.find(".class") != std::string::npos) {
         ShowFileds(bytes, java_class);
+    } else {
+        ShowFileds(bytes, MarkObjectFile(bytes));
     }
 
     // color::ShowExample();
