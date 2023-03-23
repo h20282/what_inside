@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -157,6 +158,8 @@ std::vector<Field> MarkObjectFile(const std::vector<char> &bytes) {
         fields.push_back(field);
         curr += field.size;
     }
+
+    std::remove_if(fields.begin(), fields.end(), [](const Field &field) { return field.size == 0; });
 
     return fields;
 }
