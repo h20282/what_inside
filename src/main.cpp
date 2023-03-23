@@ -159,7 +159,11 @@ std::vector<Field> MarkObjectFile(const std::vector<char> &bytes) {
         curr += field.size;
     }
 
-    std::remove_if(fields.begin(), fields.end(), [](const Field &field) { return field.size == 0; });
+    /* for (auto f : fields) { printf("%ld -> `%s`\n", f.size, f.name.c_str()); } */
+    auto iter = std::remove_if(fields.begin(), fields.end(), [](const Field &field) { return field.size == 0; });
+    fields.erase(iter, fields.end());
+    /* std::cout << "===========" << std::endl; */
+    /* for (auto f : fields) { printf("%ld -> `%s`\n", f.size, f.name.c_str()); } */
 
     return fields;
 }
