@@ -234,7 +234,7 @@ int main(int argc, char **argv) {
     for (auto &field : java_class) { field.color = colors[i++ % n]; }
 
     if (argc < 2) {
-        std::cout << "Usage: showed_feilds filename [colum limit]" << std::endl;
+        std::cout << "Usage: what_inside filename [colum limit]" << std::endl;
         return 0;
     }
     std::string file_name = argv[1];
