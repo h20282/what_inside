@@ -41,6 +41,23 @@ void ShowFileds(const void *p, int size, std::vector<Field> arr) {
 
     std::vector<Field> showed_feilds;
     std::vector<char> showed_bytes;
+    auto PrintExtras = [&showed_bytes, &showed_feilds]() {
+        std::cout << " |";
+        for (auto c : showed_bytes) {
+            if (std::isprint(c)) {
+                printf("%c", c);
+            } else {
+                printf(" ");
+            }
+        }
+        std::cout << "| ";
+        for (auto field : showed_feilds) {
+            color::Print(color::kWhite, field.color, field.name);
+            std::cout << " ";
+        }
+        putchar('\n');
+    };
+
     for (auto field : arr) {
         showed_feilds.push_back(field);
         for (int i = 0; i < field.size; ++i) {
@@ -56,28 +73,25 @@ void ShowFileds(const void *p, int size, std::vector<Field> arr) {
             ++curr;
             if (++byte_cnt % gColumLimit == 0) {
                 ++line_number;
-                std::cout << " |";
-                for (auto c : showed_bytes) {
-                    if (std::isprint(c)) {
-                        printf("%c", c);
-                    } else {
-                        printf(" ");
-                    }
-                }
-                std::cout << "| ";
-                for (auto field : showed_feilds) {
-                    color::Print(color::kWhite, field.color, field.name);
-                    std::cout << " ";
-                }
-                putchar('\n');
-
-                if (curr == data + size) { break; }
-
-                PrintLineNumber(line_number, byte_cnt);
+                PrintExtras();
                 showed_feilds.clear();
                 showed_bytes.clear();
+
+                if (curr == data + size) { break; }
+                PrintLineNumber(line_number, byte_cnt);
             }
         }
+    }
+
+    int rest_size = showed_bytes.size();
+    if (rest_size != 0) {
+        for (int i = 0; i < gColumLimit - rest_size; ++i) {
+            color::Print(color::kBlack, color::kBlack, "   ");
+            showed_bytes.push_back(0x00);
+        }
+        PrintExtras();
+        showed_feilds.clear();
+        showed_bytes.clear();
     }
 }
 
