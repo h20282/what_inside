@@ -31,9 +31,9 @@ void PrintLineNumber(int line_number, int offset) {
     printf("0x%04x| ", offset);
 }
 
-void ShowFileds(const std::vector<char> bytes, std::vector<Field> arr) {
-    auto data = bytes.data();
-
+void ShowFileds(const void *p, int size, std::vector<Field> arr) {
+    const char *data = reinterpret_cast<const char *>(p);
+    const char *curr = data;
     int byte_cnt = 0;
     int line_number = 0;
 
@@ -45,15 +45,15 @@ void ShowFileds(const std::vector<char> bytes, std::vector<Field> arr) {
         showed_feilds.push_back(field);
         for (int i = 0; i < field.size; ++i) {
             static char buff[100];
-            sprintf(&buff[0], "%02x", (uint8_t) *data);
-            showed_bytes.push_back(*data);
+            sprintf(&buff[0], "%02x", (uint8_t) *curr);
+            showed_bytes.push_back(*curr);
             color::Print(color::kWhite, field.color, buff);
             if (i != field.size - 1) {
                 color::Print(color::kWhite, field.color, " ");
             } else {
                 color::Print(color::kNone, color::kNone, " ");
             }
-            ++data;
+            ++curr;
             if (++byte_cnt % gColumLimit == 0) {
                 ++line_number;
                 std::cout << " |";
@@ -71,7 +71,7 @@ void ShowFileds(const std::vector<char> bytes, std::vector<Field> arr) {
                 }
                 putchar('\n');
 
-                if (data == bytes.data() + bytes.size()) { break; }
+                if (curr == data + size) { break; }
 
                 PrintLineNumber(line_number, byte_cnt);
                 showed_feilds.clear();
@@ -223,9 +223,9 @@ int main(int argc, char **argv) {
     if (argc == 3) { gColumLimit = std::stoi(argv[2]); }
     auto bytes = ReadFile(file_name);
     if (file_name.find(".class") != std::string::npos) {
-        ShowFileds(bytes, java_class);
+        ShowFileds(bytes.data(), bytes.size(), java_class);
     } else {
-        ShowFileds(bytes, MarkObjectFile(bytes));
+        ShowFileds(bytes.data(), bytes.size(), MarkObjectFile(bytes));
     }
 
     // color::ShowExample();
