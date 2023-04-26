@@ -7,13 +7,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-else()
-    include(${PROJECT_SOURCE_DIR}/build/conanbuildinfo.cmake)
-endif()
-conan_basic_setup()
-
 aux_source_directory(./src SRC)
 
 add_executable(${PROJECT_NAME} ${SRC})
